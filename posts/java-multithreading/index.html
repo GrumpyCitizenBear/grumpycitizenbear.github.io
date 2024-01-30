@@ -1,58 +1,236 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-Hans" lang="zh-Hans">
-<head>
-  <link href="https://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.122.0">
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>java-multithreading | 暴力熊的进阶笔记</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System.">
+    <meta name="generator" content="Hugo 0.122.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
 
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="http://grumpycitizenbear.top/posts/java-multithreading/">
+    
+
+    <meta property="og:title" content="java-multithreading" />
+<meta property="og:description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://grumpycitizenbear.top/posts/java-multithreading/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-03T10:23:05+08:00" />
+<meta property="article:modified_time" content="2021-11-03T10:23:05+08:00" />
+
+<meta itemprop="name" content="java-multithreading">
+<meta itemprop="description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System."><meta itemprop="datePublished" content="2021-11-03T10:23:05+08:00" />
+<meta itemprop="dateModified" content="2021-11-03T10:23:05+08:00" />
+<meta itemprop="wordCount" content="473">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="java-multithreading"/>
+<meta name="twitter:description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>java-multithreading &middot; 暴力熊的进阶笔记</title>
-  <meta name="description" content="" />
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        暴力熊的进阶笔记
+      
+    </a>
+    <div class="flex-l items-center">
+      
 
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top" title="首页 page">
+              首页
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="./content/posts" title="博文 page">
+              博文
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="https://github.com/GrumpyCitizenBear" title="GitHub page">
+              GitHub
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于 page">
+              关于
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
   
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/print.css" media="print">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/poole.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/syntax.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/hyde.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+</div>
 
-
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.png">
-
-  
-  
-</head>
-
-  <body class=" ">
-  <aside class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <a href="http://grumpycitizenbear.top/"><h1>暴力熊的进阶笔记</h1></a>
-      <p class="lead">
-      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
-      </p>
     </div>
-
-    <nav>
-      <ul class="sidebar-nav">
-        <li><a href="http://grumpycitizenbear.top/">Home</a> </li>
-        <li><a href="http://grumpycitizenbear.top"> 首页 </a></li><li><a href="./content/posts"> 博文 </a></li><li><a href="https://github.com/GrumpyCitizenBear"> GitHub </a></li><li><a href="http://grumpycitizenbear.top/posts/my-first-post/"> 关于 </a></li>
-      </ul>
-    </nav>
-
-    <p>&copy; 2024. All rights reserved. </p>
   </div>
-</aside>
+</nav>
 
-    <main class="content container">
-    <div class="post">
-  <h1>java-multithreading</h1>
-  <time datetime=2021-11-03T10:23:05&#43;0800 class="post-date">Wed, Nov 3, 2021</time>
-  <h1 id="多线程与并发">多线程与并发</h1>
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">java-multithreading</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-11-03T10:23:05+08:00">November 3, 2021</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="多线程与并发">多线程与并发</h1>
 <h2 id="线程与进程">线程与进程</h2>
 <p>进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。</p>
 <p>线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。</p>
@@ -387,14 +565,37 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 <li>Future代表一个“未来才会返回的结果”</li>
 </ul>
 <h4 id="多线程经典问题生产者消费者模型">多线程经典问题：生产者/消费者模型</h4>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
 
-</div>
+    <aside class="w-30-l mt6-l">
 
+
+
+
+</aside>
+
+  </article>
 
     </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://grumpycitizenbear.top/" >
+    &copy;  暴力熊的进阶笔记 2024 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
 
-    
-      
-    
   </body>
 </html>

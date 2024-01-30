@@ -1,67 +1,184 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-Hans" lang="zh-Hans">
-<head>
-  <link href="https://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.122.0">
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>basic steps of web crawler | 暴力熊的进阶笔记</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="网络爬虫的基本步骤 ">
+    <meta name="generator" content="Hugo 0.122.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
 
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>basic steps of web crawler &middot; 暴力熊的进阶笔记</title>
-  <meta name="description" content="" />
-
-  
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/print.css" media="print">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/poole.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/syntax.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/hyde.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
-
-
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.png">
-
-  
-  
-</head>
-
-  <body class=" ">
-  <aside class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <a href="http://grumpycitizenbear.top/"><h1>暴力熊的进阶笔记</h1></a>
-      <p class="lead">
-      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
-      </p>
-    </div>
-
-    <nav>
-      <ul class="sidebar-nav">
-        <li><a href="http://grumpycitizenbear.top/">Home</a> </li>
-        <li><a href="http://grumpycitizenbear.top"> 首页 </a></li><li><a href="./content/posts"> 博文 </a></li><li><a href="https://github.com/GrumpyCitizenBear"> GitHub </a></li><li><a href="http://grumpycitizenbear.top/posts/my-first-post/"> 关于 </a></li>
-      </ul>
-    </nav>
-
-    <p>&copy; 2024. All rights reserved. </p>
-  </div>
-</aside>
-
-    <main class="content container">
-    <div class="post">
-  <h1>basic steps of web crawler</h1>
-  <time datetime=2021-11-10T20:18:12&#43;0800 class="post-date">Wed, Nov 10, 2021</time>
-  <h1 id="网络爬虫的基本步骤">网络爬虫的基本步骤</h1>
-<h3 id="heading"></h3>
-
-</div>
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
 
 
-    </main>
+
+    
 
     
       
+
     
+
+    
+
+    
+      <link rel="canonical" href="http://grumpycitizenbear.top/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/">
+    
+
+    <meta property="og:title" content="basic steps of web crawler" />
+<meta property="og:description" content="网络爬虫的基本步骤 " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://grumpycitizenbear.top/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-11-10T20:18:12+08:00" />
+<meta property="article:modified_time" content="2021-11-10T20:18:12+08:00" />
+
+<meta itemprop="name" content="basic steps of web crawler">
+<meta itemprop="description" content="网络爬虫的基本步骤 "><meta itemprop="datePublished" content="2021-11-10T20:18:12+08:00" />
+<meta itemprop="dateModified" content="2021-11-10T20:18:12+08:00" />
+<meta itemprop="wordCount" content="1">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="basic steps of web crawler"/>
+<meta name="twitter:description" content="网络爬虫的基本步骤 "/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        暴力熊的进阶笔记
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top" title="首页 page">
+              首页
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="./content/posts" title="博文 page">
+              博文
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="https://github.com/GrumpyCitizenBear" title="GitHub page">
+              GitHub
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于 page">
+              关于
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
+  
+</div>
+
+    </div>
+  </div>
+</nav>
+
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">basic steps of web crawler</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-11-10T20:18:12+08:00">November 10, 2021</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="网络爬虫的基本步骤">网络爬虫的基本步骤</h1>
+<h3 id="heading"></h3>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://grumpycitizenbear.top/" >
+    &copy;  暴力熊的进阶笔记 2024 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
+
   </body>
 </html>

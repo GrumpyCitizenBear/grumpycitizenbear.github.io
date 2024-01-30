@@ -1,58 +1,156 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-Hans" lang="zh-Hans">
-<head>
-  <link href="https://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.122.0">
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Collection体系原理 | 暴力熊的进阶笔记</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Collection 体系原理 一、体系简介 1.为什么要有集合？ 数组不能实现动态扩容 数组不便于添加、修改、删除 数组可以储存重复元素 2.Collection接口主要有两种子类型集合：List、Set Collection接口储存一组不唯一，无序的对象 List接口储存一组不唯一，有序（插入顺序）的对象 Set接口储存一组唯一，无序的对象 Map接口储存一组键值对象，提供key和value的映射 二、List 1.ArrayList：本质上就是一个数组 2.动态扩容的实现方式 创建一个更大的空间，把原先所有的元素拷贝过去
+private void grow(int minCapacity) { // overflow-conscious code int oldCapacity = elementData.length; int newCapacity = oldCapacity &#43; (oldCapacity &gt;&gt; 1); if (newCapacity - minCapacity &lt; 0) newCapacity = minCapacity; if (newCapacity - MAX_ARRAY_SIZE &gt; 0) newCapacity = hugeCapacity(minCapacity); // minCapacity is usually close to size, so this is a win: elementData = Arrays.copyOf(elementData, newCapacity); } 三、Set 1.">
+    <meta name="generator" content="Hugo 0.122.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
 
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="http://grumpycitizenbear.top/posts/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/">
+    
+
+    <meta property="og:title" content="Collection体系原理" />
+<meta property="og:description" content="Collection 体系原理 一、体系简介 1.为什么要有集合？ 数组不能实现动态扩容 数组不便于添加、修改、删除 数组可以储存重复元素 2.Collection接口主要有两种子类型集合：List、Set Collection接口储存一组不唯一，无序的对象 List接口储存一组不唯一，有序（插入顺序）的对象 Set接口储存一组唯一，无序的对象 Map接口储存一组键值对象，提供key和value的映射 二、List 1.ArrayList：本质上就是一个数组 2.动态扩容的实现方式 创建一个更大的空间，把原先所有的元素拷贝过去
+private void grow(int minCapacity) { // overflow-conscious code int oldCapacity = elementData.length; int newCapacity = oldCapacity &#43; (oldCapacity &gt;&gt; 1); if (newCapacity - minCapacity &lt; 0) newCapacity = minCapacity; if (newCapacity - MAX_ARRAY_SIZE &gt; 0) newCapacity = hugeCapacity(minCapacity); // minCapacity is usually close to size, so this is a win: elementData = Arrays.copyOf(elementData, newCapacity); } 三、Set 1." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://grumpycitizenbear.top/posts/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-10-21T21:29:50+08:00" />
+<meta property="article:modified_time" content="2021-10-21T21:29:50+08:00" />
+
+<meta itemprop="name" content="Collection体系原理">
+<meta itemprop="description" content="Collection 体系原理 一、体系简介 1.为什么要有集合？ 数组不能实现动态扩容 数组不便于添加、修改、删除 数组可以储存重复元素 2.Collection接口主要有两种子类型集合：List、Set Collection接口储存一组不唯一，无序的对象 List接口储存一组不唯一，有序（插入顺序）的对象 Set接口储存一组唯一，无序的对象 Map接口储存一组键值对象，提供key和value的映射 二、List 1.ArrayList：本质上就是一个数组 2.动态扩容的实现方式 创建一个更大的空间，把原先所有的元素拷贝过去
+private void grow(int minCapacity) { // overflow-conscious code int oldCapacity = elementData.length; int newCapacity = oldCapacity &#43; (oldCapacity &gt;&gt; 1); if (newCapacity - minCapacity &lt; 0) newCapacity = minCapacity; if (newCapacity - MAX_ARRAY_SIZE &gt; 0) newCapacity = hugeCapacity(minCapacity); // minCapacity is usually close to size, so this is a win: elementData = Arrays.copyOf(elementData, newCapacity); } 三、Set 1."><meta itemprop="datePublished" content="2021-10-21T21:29:50+08:00" />
+<meta itemprop="dateModified" content="2021-10-21T21:29:50+08:00" />
+<meta itemprop="wordCount" content="138">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Collection体系原理"/>
+<meta name="twitter:description" content="Collection 体系原理 一、体系简介 1.为什么要有集合？ 数组不能实现动态扩容 数组不便于添加、修改、删除 数组可以储存重复元素 2.Collection接口主要有两种子类型集合：List、Set Collection接口储存一组不唯一，无序的对象 List接口储存一组不唯一，有序（插入顺序）的对象 Set接口储存一组唯一，无序的对象 Map接口储存一组键值对象，提供key和value的映射 二、List 1.ArrayList：本质上就是一个数组 2.动态扩容的实现方式 创建一个更大的空间，把原先所有的元素拷贝过去
+private void grow(int minCapacity) { // overflow-conscious code int oldCapacity = elementData.length; int newCapacity = oldCapacity &#43; (oldCapacity &gt;&gt; 1); if (newCapacity - minCapacity &lt; 0) newCapacity = minCapacity; if (newCapacity - MAX_ARRAY_SIZE &gt; 0) newCapacity = hugeCapacity(minCapacity); // minCapacity is usually close to size, so this is a win: elementData = Arrays.copyOf(elementData, newCapacity); } 三、Set 1."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Collection体系原理 &middot; 暴力熊的进阶笔记</title>
-  <meta name="description" content="" />
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        暴力熊的进阶笔记
+      
+    </a>
+    <div class="flex-l items-center">
+      
 
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top" title="首页 page">
+              首页
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="./content/posts" title="博文 page">
+              博文
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="https://github.com/GrumpyCitizenBear" title="GitHub page">
+              GitHub
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于 page">
+              关于
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
   
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/print.css" media="print">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/poole.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/syntax.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/hyde.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+</div>
 
-
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.png">
-
-  
-  
-</head>
-
-  <body class=" ">
-  <aside class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <a href="http://grumpycitizenbear.top/"><h1>暴力熊的进阶笔记</h1></a>
-      <p class="lead">
-      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
-      </p>
     </div>
-
-    <nav>
-      <ul class="sidebar-nav">
-        <li><a href="http://grumpycitizenbear.top/">Home</a> </li>
-        <li><a href="http://grumpycitizenbear.top"> 首页 </a></li><li><a href="./content/posts"> 博文 </a></li><li><a href="https://github.com/GrumpyCitizenBear"> GitHub </a></li><li><a href="http://grumpycitizenbear.top/posts/my-first-post/"> 关于 </a></li>
-      </ul>
-    </nav>
-
-    <p>&copy; 2024. All rights reserved. </p>
   </div>
-</aside>
+</nav>
 
-    <main class="content container">
-    <div class="post">
-  <h1>Collection体系原理</h1>
-  <time datetime=2021-10-21T21:29:50&#43;0800 class="post-date">Thu, Oct 21, 2021</time>
-  <h1 id="collection-体系原理">Collection 体系原理</h1>
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Collection体系原理</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-10-21T21:29:50+08:00">October 21, 2021</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="collection-体系原理">Collection 体系原理</h1>
 <h2 id="一体系简介">一、体系简介</h2>
 <h3 id="1为什么要有集合">1.为什么要有集合？</h3>
 <ul>
@@ -173,14 +271,37 @@
 <li>Multimap：一个key可以对应多个值</li>
 <li>BiMap：创建双向的Map，从key搜索value，从value搜索key</li>
 </ul>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
 
-</div>
+    <aside class="w-30-l mt6-l">
 
+
+
+
+</aside>
+
+  </article>
 
     </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://grumpycitizenbear.top/" >
+    &copy;  暴力熊的进阶笔记 2024 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
 
-    
-      
-    
   </body>
 </html>

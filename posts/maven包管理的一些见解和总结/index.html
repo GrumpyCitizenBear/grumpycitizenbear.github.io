@@ -1,58 +1,216 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-Hans" lang="zh-Hans">
-<head>
-  <link href="https://gmpg.org/xfn/11" rel="profile">
-  <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.122.0">
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Maven包管理的一些见解和总结 | 暴力熊的进阶笔记</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Java的包管理与maven 一、什么是包？ 1.如果要知道什么是包，那么首先要了解一下JVM的工作模式 其实很简单，只需要两步：
+执行一个类的字节码
+假如在这个过程中碰到了新的类，加载它
+1、2步循环执行，直到完成整个程序
+2.同时我们还要知道在哪里可以找到类？ classpath类路径
+类的权限定类名（目录层级）唯一确定了一个类
+3.包就是把许多类放在一起打的压缩包 通常以.jar扩展名结尾，也可以手动改为zip
+4.传递性依赖 通俗的说，就是你的程序依赖的类还依赖了别的类
+产生的问题：
+如果classpath中有重名的类，会优先使用排在前面的类 这样会导致程序在未来的某一天因为改变了classpath而出现bug 引申出包管理➡️
+二、什么是包管理 你要使用一些第三方的类，需要告诉JVM去哪里找
+包管理的本质就是告诉JVM如何找到所需的第三方类库，以及成功解决其中的冲突问题
+三、包管理的发展历史 1.Apache Ant 手动下载jar包，放在一个目录中 写XML配置，指定编译的源代码目录、依赖的jar包、输出目录等 缺点 每个人都要造自己的轮子 第三方类库需要手动下载（如果依赖了10000个。。。。） 没有解决包冲突问题 2.Maven 四、maven包管理 maven远不止包管理工具
+1.maven的仓库 maven的中央仓库 按照一定的约定储存包
+maven的本地仓库 默认位置 ～/.m2
+2.maven的编号 groupid artifactid version maven的包按照约定为所有的包编号，方便检索
+3.maven的传递性依赖自动管理 原则：决不允许出现同名不同版本号的jar包 解决方案：1.选择离项目最近的 2.如果距离相同，选择版本号靠前的 4.会产生包冲突 举个例子 我的项目➡️A➡️B➡️C(2.0.0) 我的项目➡️D➡️C(1.0.0) 我的项目依赖了A，A依赖B，B依赖C的2.0.0版本 我的项目还依赖了D，D依赖了C的1.0.0版本 按照maven的解决方法，优于C（1.0.0）距离我的项目更近，所以会选择使用1.0.0版本的C 带来的问题：A引用的C（2.0.0）中的方法在C（1.0.0）版本中没有，系统就会报错 依赖冲突的信号 AbstractMethodError NoClassDefFoundError ClassNotFoundException LinkageError 5.解决包冲突 查看冲突的方式 在IDEA maven 图形化界面中查看 命令行 mvn dependency:tree 可以重定向到文件中，方便查看 使用过滤器： mvn dependency -Dincludes= IDEA中的插件：maven helper 解决方法 直接在pom.">
+    <meta name="generator" content="Hugo 0.122.0">
+    
+    
+    
+    
+      <meta name="robots" content="noindex, nofollow">
+    
 
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+
+    
+      
+
+    
+
+    
+
+    
+      <link rel="canonical" href="http://grumpycitizenbear.top/posts/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/">
+    
+
+    <meta property="og:title" content="Maven包管理的一些见解和总结" />
+<meta property="og:description" content="Java的包管理与maven 一、什么是包？ 1.如果要知道什么是包，那么首先要了解一下JVM的工作模式 其实很简单，只需要两步：
+执行一个类的字节码
+假如在这个过程中碰到了新的类，加载它
+1、2步循环执行，直到完成整个程序
+2.同时我们还要知道在哪里可以找到类？ classpath类路径
+类的权限定类名（目录层级）唯一确定了一个类
+3.包就是把许多类放在一起打的压缩包 通常以.jar扩展名结尾，也可以手动改为zip
+4.传递性依赖 通俗的说，就是你的程序依赖的类还依赖了别的类
+产生的问题：
+如果classpath中有重名的类，会优先使用排在前面的类 这样会导致程序在未来的某一天因为改变了classpath而出现bug 引申出包管理➡️
+二、什么是包管理 你要使用一些第三方的类，需要告诉JVM去哪里找
+包管理的本质就是告诉JVM如何找到所需的第三方类库，以及成功解决其中的冲突问题
+三、包管理的发展历史 1.Apache Ant 手动下载jar包，放在一个目录中 写XML配置，指定编译的源代码目录、依赖的jar包、输出目录等 缺点 每个人都要造自己的轮子 第三方类库需要手动下载（如果依赖了10000个。。。。） 没有解决包冲突问题 2.Maven 四、maven包管理 maven远不止包管理工具
+1.maven的仓库 maven的中央仓库 按照一定的约定储存包
+maven的本地仓库 默认位置 ～/.m2
+2.maven的编号 groupid artifactid version maven的包按照约定为所有的包编号，方便检索
+3.maven的传递性依赖自动管理 原则：决不允许出现同名不同版本号的jar包 解决方案：1.选择离项目最近的 2.如果距离相同，选择版本号靠前的 4.会产生包冲突 举个例子 我的项目➡️A➡️B➡️C(2.0.0) 我的项目➡️D➡️C(1.0.0) 我的项目依赖了A，A依赖B，B依赖C的2.0.0版本 我的项目还依赖了D，D依赖了C的1.0.0版本 按照maven的解决方法，优于C（1.0.0）距离我的项目更近，所以会选择使用1.0.0版本的C 带来的问题：A引用的C（2.0.0）中的方法在C（1.0.0）版本中没有，系统就会报错 依赖冲突的信号 AbstractMethodError NoClassDefFoundError ClassNotFoundException LinkageError 5.解决包冲突 查看冲突的方式 在IDEA maven 图形化界面中查看 命令行 mvn dependency:tree 可以重定向到文件中，方便查看 使用过滤器： mvn dependency -Dincludes= IDEA中的插件：maven helper 解决方法 直接在pom." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://grumpycitizenbear.top/posts/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-10-21T10:42:06+08:00" />
+<meta property="article:modified_time" content="2021-10-21T10:42:06+08:00" />
+
+<meta itemprop="name" content="Maven包管理的一些见解和总结">
+<meta itemprop="description" content="Java的包管理与maven 一、什么是包？ 1.如果要知道什么是包，那么首先要了解一下JVM的工作模式 其实很简单，只需要两步：
+执行一个类的字节码
+假如在这个过程中碰到了新的类，加载它
+1、2步循环执行，直到完成整个程序
+2.同时我们还要知道在哪里可以找到类？ classpath类路径
+类的权限定类名（目录层级）唯一确定了一个类
+3.包就是把许多类放在一起打的压缩包 通常以.jar扩展名结尾，也可以手动改为zip
+4.传递性依赖 通俗的说，就是你的程序依赖的类还依赖了别的类
+产生的问题：
+如果classpath中有重名的类，会优先使用排在前面的类 这样会导致程序在未来的某一天因为改变了classpath而出现bug 引申出包管理➡️
+二、什么是包管理 你要使用一些第三方的类，需要告诉JVM去哪里找
+包管理的本质就是告诉JVM如何找到所需的第三方类库，以及成功解决其中的冲突问题
+三、包管理的发展历史 1.Apache Ant 手动下载jar包，放在一个目录中 写XML配置，指定编译的源代码目录、依赖的jar包、输出目录等 缺点 每个人都要造自己的轮子 第三方类库需要手动下载（如果依赖了10000个。。。。） 没有解决包冲突问题 2.Maven 四、maven包管理 maven远不止包管理工具
+1.maven的仓库 maven的中央仓库 按照一定的约定储存包
+maven的本地仓库 默认位置 ～/.m2
+2.maven的编号 groupid artifactid version maven的包按照约定为所有的包编号，方便检索
+3.maven的传递性依赖自动管理 原则：决不允许出现同名不同版本号的jar包 解决方案：1.选择离项目最近的 2.如果距离相同，选择版本号靠前的 4.会产生包冲突 举个例子 我的项目➡️A➡️B➡️C(2.0.0) 我的项目➡️D➡️C(1.0.0) 我的项目依赖了A，A依赖B，B依赖C的2.0.0版本 我的项目还依赖了D，D依赖了C的1.0.0版本 按照maven的解决方法，优于C（1.0.0）距离我的项目更近，所以会选择使用1.0.0版本的C 带来的问题：A引用的C（2.0.0）中的方法在C（1.0.0）版本中没有，系统就会报错 依赖冲突的信号 AbstractMethodError NoClassDefFoundError ClassNotFoundException LinkageError 5.解决包冲突 查看冲突的方式 在IDEA maven 图形化界面中查看 命令行 mvn dependency:tree 可以重定向到文件中，方便查看 使用过滤器： mvn dependency -Dincludes= IDEA中的插件：maven helper 解决方法 直接在pom."><meta itemprop="datePublished" content="2021-10-21T10:42:06+08:00" />
+<meta itemprop="dateModified" content="2021-10-21T10:42:06+08:00" />
+<meta itemprop="wordCount" content="96">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Maven包管理的一些见解和总结"/>
+<meta name="twitter:description" content="Java的包管理与maven 一、什么是包？ 1.如果要知道什么是包，那么首先要了解一下JVM的工作模式 其实很简单，只需要两步：
+执行一个类的字节码
+假如在这个过程中碰到了新的类，加载它
+1、2步循环执行，直到完成整个程序
+2.同时我们还要知道在哪里可以找到类？ classpath类路径
+类的权限定类名（目录层级）唯一确定了一个类
+3.包就是把许多类放在一起打的压缩包 通常以.jar扩展名结尾，也可以手动改为zip
+4.传递性依赖 通俗的说，就是你的程序依赖的类还依赖了别的类
+产生的问题：
+如果classpath中有重名的类，会优先使用排在前面的类 这样会导致程序在未来的某一天因为改变了classpath而出现bug 引申出包管理➡️
+二、什么是包管理 你要使用一些第三方的类，需要告诉JVM去哪里找
+包管理的本质就是告诉JVM如何找到所需的第三方类库，以及成功解决其中的冲突问题
+三、包管理的发展历史 1.Apache Ant 手动下载jar包，放在一个目录中 写XML配置，指定编译的源代码目录、依赖的jar包、输出目录等 缺点 每个人都要造自己的轮子 第三方类库需要手动下载（如果依赖了10000个。。。。） 没有解决包冲突问题 2.Maven 四、maven包管理 maven远不止包管理工具
+1.maven的仓库 maven的中央仓库 按照一定的约定储存包
+maven的本地仓库 默认位置 ～/.m2
+2.maven的编号 groupid artifactid version maven的包按照约定为所有的包编号，方便检索
+3.maven的传递性依赖自动管理 原则：决不允许出现同名不同版本号的jar包 解决方案：1.选择离项目最近的 2.如果距离相同，选择版本号靠前的 4.会产生包冲突 举个例子 我的项目➡️A➡️B➡️C(2.0.0) 我的项目➡️D➡️C(1.0.0) 我的项目依赖了A，A依赖B，B依赖C的2.0.0版本 我的项目还依赖了D，D依赖了C的1.0.0版本 按照maven的解决方法，优于C（1.0.0）距离我的项目更近，所以会选择使用1.0.0版本的C 带来的问题：A引用的C（2.0.0）中的方法在C（1.0.0）版本中没有，系统就会报错 依赖冲突的信号 AbstractMethodError NoClassDefFoundError ClassNotFoundException LinkageError 5.解决包冲突 查看冲突的方式 在IDEA maven 图形化界面中查看 命令行 mvn dependency:tree 可以重定向到文件中，方便查看 使用过滤器： mvn dependency -Dincludes= IDEA中的插件：maven helper 解决方法 直接在pom."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Maven包管理的一些见解和总结 &middot; 暴力熊的进阶笔记</title>
-  <meta name="description" content="" />
+  <header>
+    <div class="bg-black">
+      <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        暴力熊的进阶笔记
+      
+    </a>
+    <div class="flex-l items-center">
+      
 
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top" title="首页 page">
+              首页
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="./content/posts" title="博文 page">
+              博文
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="https://github.com/GrumpyCitizenBear" title="GitHub page">
+              GitHub
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于 page">
+              关于
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
   
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/print.css" media="print">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/poole.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/syntax.css">
-  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/hyde.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+</div>
 
-
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.png">
-
-  
-  
-</head>
-
-  <body class=" ">
-  <aside class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <a href="http://grumpycitizenbear.top/"><h1>暴力熊的进阶笔记</h1></a>
-      <p class="lead">
-      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
-      </p>
     </div>
-
-    <nav>
-      <ul class="sidebar-nav">
-        <li><a href="http://grumpycitizenbear.top/">Home</a> </li>
-        <li><a href="http://grumpycitizenbear.top"> 首页 </a></li><li><a href="./content/posts"> 博文 </a></li><li><a href="https://github.com/GrumpyCitizenBear"> GitHub </a></li><li><a href="http://grumpycitizenbear.top/posts/my-first-post/"> 关于 </a></li>
-      </ul>
-    </nav>
-
-    <p>&copy; 2024. All rights reserved. </p>
   </div>
-</aside>
+</nav>
 
-    <main class="content container">
-    <div class="post">
-  <h1>Maven包管理的一些见解和总结</h1>
-  <time datetime=2021-10-21T10:42:06&#43;0800 class="post-date">Thu, Oct 21, 2021</time>
-  <h1 id="java的包管理与maven">Java的包管理与maven</h1>
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked ttu">
+          
+        Posts
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Maven包管理的一些见解和总结</h1>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-10-21T10:42:06+08:00">October 21, 2021</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="java的包管理与maven">Java的包管理与maven</h1>
 <h2 id="一什么是包">一、什么是包？</h2>
 <h3 id="1如果要知道什么是包那么首先要了解一下jvm的工作模式">1.如果要知道什么是包，那么首先要了解一下JVM的工作模式</h3>
 <p>其实很简单，只需要两步：</p>
@@ -173,14 +331,37 @@ mvn dependency -Dincludes=
 <h3 id="2pomxml">2.pom.xml</h3>
 <p>全称：project object model</p>
 <p>项目的说明书</p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
 
-</div>
+    <aside class="w-30-l mt6-l">
 
+
+
+
+</aside>
+
+  </article>
 
     </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://grumpycitizenbear.top/" >
+    &copy;  暴力熊的进阶笔记 2024 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div>
+</div>
+  </div>
+</footer>
 
-    
-      
-    
   </body>
 </html>
