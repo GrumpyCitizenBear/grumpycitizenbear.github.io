@@ -2,35 +2,39 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://grumpycitizenbear.top/posts/html%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/</loc>
+    <loc>http://grumpycitizenbear.top/post/html%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/</loc>
     <lastmod>2021-11-26T15:23:42+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/</loc>
+    <loc>http://grumpycitizenbear.top/post/</loc>
     <lastmod>2021-11-26T15:23:42+08:00</lastmod>
   </url><url>
     <loc>http://grumpycitizenbear.top/</loc>
     <lastmod>2021-11-26T15:23:42+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</loc>
+    <loc>http://grumpycitizenbear.top/post/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</loc>
     <lastmod>2021-11-10T20:18:12+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/java-multithreading/</loc>
+    <loc>http://grumpycitizenbear.top/post/java-multithreading/</loc>
     <lastmod>2021-11-03T10:23:05+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/</loc>
+    <loc>http://grumpycitizenbear.top/post/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/</loc>
     <lastmod>2021-10-21T21:29:50+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/</loc>
+    <loc>http://grumpycitizenbear.top/post/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2021-10-21T10:42:06+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/%E6%9C%89%E5%85%B3getter%E5%92%8Csetter%E7%9A%84%E7%94%A8%E6%B3%95/</loc>
+    <loc>http://grumpycitizenbear.top/post/%E6%9C%89%E5%85%B3getter%E5%92%8Csetter%E7%9A%84%E7%94%A8%E6%B3%95/</loc>
     <lastmod>2021-10-14T16:42:27+08:00</lastmod>
   </url><url>
-    <loc>http://grumpycitizenbear.top/posts/my-first-post/</loc>
+    <loc>http://grumpycitizenbear.top/post/my-first-post/</loc>
     <lastmod>2021-10-14T09:42:27+08:00</lastmod>
   </url><url>
     <loc>http://grumpycitizenbear.top/categories/</loc>
   </url><url>
     <loc>http://grumpycitizenbear.top/tags/</loc>
+  </url><url>
+    <loc>http://grumpycitizenbear.top/archives/</loc>
+  </url><url>
+    <loc>http://grumpycitizenbear.top/search/</loc>
   </url>
 </urlset>

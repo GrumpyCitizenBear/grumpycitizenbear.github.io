@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Collection体系原理 | 暴力熊的进阶笔记</title>
+    <meta property="og:title" content="Collection体系原理 - 暴力熊的进阶笔记">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-10-21T21:29:50&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-10-21T21:29:50&#43;08:00'>
+        
+    <meta name="Keywords" content="golang,go语言,go语言笔记,java,android,博客,项目管理,python,软件架构,公众号,小程序">
+    <meta name="description" content="Collection体系原理">
+        
+    <meta name="author" content="暴躁市民小熊">
+    <meta property="og:url" content="http://grumpycitizenbear.top/post/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+        <link rel="stylesheet" href='/css/douban.css'>
+    
+        <link rel="stylesheet" href='/css/other.css'>
+    
+</head>
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://grumpycitizenbear.top/">
+                        暴力熊的进阶笔记
+                    </a>
+                
+                <p class="description">专注于Android、Java、Go语言(golang)、移动互联网、项目管理、软件架构</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://grumpycitizenbear.top/">Home</a>
+                    
+                    <a  href="http://grumpycitizenbear.top" title="首页">首页</a>
+                    
+                    <a  href="http://grumpycitizenbear.top/content/posts" title="博文">博文</a>
+                    
+                    <a  href="https://github.com/GrumpyCitizenBear" title="GitHub">GitHub</a>
+                    
+                    <a  href="http://grumpycitizenbear.top/tools/" title="工具">工具</a>
+                    
+                    <a  href="http://grumpycitizenbear.top/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于">关于</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">Table of Contents</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#一体系简介">一、体系简介</a>
+      <ul>
+        <li><a href="#1为什么要有集合">1.为什么要有集合？</a></li>
+        <li><a href="#2collection接口主要有两种子类型集合listset">2.Collection接口主要有两种子类型集合：List、Set</a></li>
+      </ul>
+    </li>
+    <li><a href="#二list">二、List</a>
+      <ul>
+        <li><a href="#1arraylist本质上就是一个数组">1.ArrayList：本质上就是一个数组</a></li>
+        <li><a href="#2动态扩容的实现方式">2.动态扩容的实现方式</a></li>
+      </ul>
+    </li>
+    <li><a href="#三set">三、Set</a>
+      <ul>
+        <li><a href="#1不允许有重复元素的集合">1.不允许有重复元素的集合</a></li>
+        <li><a href="#2hashcode">2.HashCode</a></li>
+        <li><a href="#3hashset">3.HashSet</a></li>
+      </ul>
+    </li>
+    <li><a href="#四map">四、Map</a>
+      <ul>
+        <li><a href="#1概述">1.概述</a></li>
+        <li><a href="#2hashmap">2.HashMap</a></li>
+      </ul>
+    </li>
+    <li><a href="#五treesettreemap">五、TreeSet/TreeMap</a>
+      <ul>
+        <li><a href="#1比较">1.比较</a></li>
+        <li><a href="#2原理平衡二叉树">2.原理：平衡二叉树</a></li>
+      </ul>
+    </li>
+    <li><a href="#六一些其他的方法">六、一些其他的方法</a>
+      <ul>
+        <li><a href="#1collections">1.collections</a></li>
+        <li><a href="#2collection的其他实现">2.Collection的其他实现</a></li>
+        <li><a href="#3guava">3.Guava</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if (leftPos < 220) {
+                postToc.css({ "width": leftPos - 10, "margin-left": (0 - leftPos) })
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+
+        if ($("#TableOfContents").children().length < 1) {
+            $(".post-toc").remove();
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Collection体系原理</h1>
+        </header>
+        
+  <time datetime="2021-10-21T13:29:50Z" class="post-meta meta-date dt-published">
+    2021-10-21
+  </time>
+
+
+
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">&nbsp;|
+                <span id="busuanzi_value_page_pv"></span> <span>reads</span>
+            </span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h1 id="collection-体系原理">Collection 体系原理</h1>
+<h2 id="一体系简介">一、体系简介</h2>
+<h3 id="1为什么要有集合">1.为什么要有集合？</h3>
+<ul>
+<li>数组不能实现动态扩容</li>
+<li>数组不便于添加、修改、删除</li>
+<li>数组可以储存重复元素</li>
+</ul>
+<h3 id="2collection接口主要有两种子类型集合listset">2.Collection接口主要有两种子类型集合：List、Set</h3>
+<ul>
+<li>Collection接口储存一组不唯一，无序的对象</li>
+<li>List接口储存一组不唯一，有序（插入顺序）的对象</li>
+<li>Set接口储存一组唯一，无序的对象</li>
+<li>Map接口储存一组键值对象，提供key和value的映射</li>
+</ul>
+<h2 id="二list">二、List</h2>
+<h3 id="1arraylist本质上就是一个数组">1.ArrayList：本质上就是一个数组</h3>
+<h3 id="2动态扩容的实现方式">2.动态扩容的实现方式</h3>
+<p>创建一个更大的空间，把原先所有的元素拷贝过去</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">
+<table style="border-spacing:0;padding:0;margin:0;border:0;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Java" data-lang="Java"><span style="display:flex;"><span><span style="color:#000;font-weight:bold">private</span><span style="color:#bbb"> </span><span style="color:#458;font-weight:bold">void</span><span style="color:#bbb"> </span><span style="color:#900;font-weight:bold">grow</span>(<span style="color:#458;font-weight:bold">int</span><span style="color:#bbb"> </span>minCapacity)<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#998;font-style:italic">// overflow-conscious code</span><span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#458;font-weight:bold">int</span><span style="color:#bbb"> </span>oldCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>elementData.<span style="color:#008080">length</span>;<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#458;font-weight:bold">int</span><span style="color:#bbb"> </span>newCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>oldCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span>(oldCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&gt;&gt;</span><span style="color:#bbb"> </span>1);<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>(newCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">-</span><span style="color:#bbb"> </span>minCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&lt;</span><span style="color:#bbb"> </span>0)<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">            </span>newCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>minCapacity;<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>(newCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">-</span><span style="color:#bbb"> </span>MAX_ARRAY_SIZE<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&gt;</span><span style="color:#bbb"> </span>0)<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">            </span>newCapacity<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>hugeCapacity(minCapacity);<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span><span style="color:#998;font-style:italic">// minCapacity is usually close to size, so this is a win:</span><span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">        </span>elementData<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>Arrays.<span style="color:#008080">copyOf</span>(elementData,<span style="color:#bbb"> </span>newCapacity);<span style="color:#bbb">
+</span></span></span><span style="display:flex;"><span><span style="color:#bbb">    </span>}<span style="color:#bbb">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="三set">三、Set</h2>
+<h3 id="1不允许有重复元素的集合">1.不允许有重复元素的集合</h3>
+<ul>
+<li>判断重复的方式：equals方法</li>
+</ul>
+<h3 id="2hashcode">2.HashCode</h3>
+<ul>
+<li>Hash(散列函数)是什么？</li>
+</ul>
+<p>Hash，一般翻译做散列、杂凑，或音译为哈希，是把任意长度的输入（又叫做预映射pre-image）通过散列算法变换成固定长度的输出，该输出就是散列值。</p>
+<p>Hash是一个函数，该函数中的实现就是一种算法，通过一种算法得到一个哈希值</p>
+<p>Hash表是所有Hash值组成的</p>
+<ul>
+<li>HashCode</li>
+</ul>
+<p>对象在Hash表中对应的Hash桶中</p>
+<ul>
+<li>作用</li>
+</ul>
+<p>把一个东西映射成一个值，但这个值可能不唯一</p>
+<p>单向的映射</p>
+<p>用于快速定位一些东西</p>
+<ul>
+<li>需要注意</li>
+</ul>
+<p>同一个对象必须始终返回相同的hashcode
+两个对象的equals返回true，必须返回相同的hashcode
+两个对象不相等，也可能返回相同的hashcode</p>
+<h3 id="3hashset">3.HashSet</h3>
+<ul>
+<li>最常用最高效的Set实现</li>
+<li>使用HashSet给ArrayList去重</li>
+<li>HashSet是无序的，如果需要排序可以使用LinkedHashSet，和插入时的顺序相同</li>
+</ul>
+<h2 id="四map">四、Map</h2>
+<h3 id="1概述">1.概述</h3>
+<ul>
+<li>将键映射到值的对象</li>
+<li>一个映射不能包含重复的键</li>
+</ul>
+<h3 id="2hashmap">2.HashMap</h3>
+<p>本质上，HashMap的key的set就是一个HashSet</p>
+<h5 id="1hashmap的扩容">（1）HashMap的扩容</h5>
+<ul>
+<li>创建一个更大的HashMap，将原先的拷贝过来</li>
+</ul>
+<h5 id="2线程不安全性">（2）线程不安全性</h5>
+<ul>
+<li>HashMap在多线程环境下重新调整大小时会造成死循环</li>
+<li>应该使用ConcurrentHashMap</li>
+</ul>
+<h5 id="3jdk7之后hashmap由链表红黑树">（3）JDK7之后，HashMap由链表➡️红黑树</h5>
+<ul>
+<li>原因：有一种巧合，一大组数据的hashcode值相同时，他们将储存在同一个hash桶中</li>
+<li>原本的hashset被迫变成了一个有序列表</li>
+</ul>
+<h2 id="五treesettreemap">五、TreeSet/TreeMap</h2>
+<h3 id="1比较">1.比较</h3>
+<ul>
+<li>HashSet：完全无序的</li>
+<li>LinkedHashSet：和插入时顺序相同</li>
+<li>TreeSet：有序的</li>
+</ul>
+<h3 id="2原理平衡二叉树">2.原理：平衡二叉树</h3>
+<ul>
+<li>将时间复杂度从线性时间降到对数时间</li>
+<li>O（n）➡️ O（log n）</li>
+</ul>
+<h2 id="六一些其他的方法">六、一些其他的方法</h2>
+<h3 id="1collections">1.collections</h3>
+<ul>
+<li>emptySet：等返回一个方便的空集合</li>
+<li>synchronizedCollection:将一个集合变成线程安全的</li>
+<li>unmodifiableCollection:将一个集合变成不可变的（也可以使用guava的Immutable）</li>
+</ul>
+<h3 id="2collection的其他实现">2.Collection的其他实现</h3>
+<ul>
+<li>Queue：队列 Last In Last Out</li>
+<li>Deque：双端队列</li>
+<li>LinkedList：链表</li>
+<li>ConcurrentHashMap:线程安全的HashMap</li>
+<li>PriorityQueue:优先级队列，堆的实现</li>
+</ul>
+<h3 id="3guava">3.Guava</h3>
+<ul>
+<li>Lists/Sets/Maps</li>
+<li>ImmutableMap/ImmutableSet</li>
+<li>Multiset：可以统计重复的值</li>
+<li>Multimap：一个key可以对应多个值</li>
+<li>BiMap：创建双向的Map，从key搜索value，从value搜索key</li>
+</ul>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>Author: </strong><a rel="author" href="http://grumpycitizenbear.top/">暴躁市民小熊</a></li>
+        <li style="word-break:break-all"><strong>Link: </strong><a href="http://grumpycitizenbear.top/post/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/">http://grumpycitizenbear.top/post/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/</a></li>
+        <li><strong>License: </strong>This work is under a <a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>. Kindly fulfill the requirements of the aforementioned License when adapting or creating a derivative of this work.</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/">Maven包管理的一些见解和总结</a></li>
+        
+        <li><a href="/post/%E6%9C%89%E5%85%B3getter%E5%92%8Csetter%E7%9A%84%E7%94%A8%E6%B3%95/">有关getter和setter的用法</a></li>
+        
+        <li><a href="/post/my-first-post/">简介</a></li>
+        
+        <li><a href="/archives/">归档</a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            No tags
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    
+    
+
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2024 <a href="http://grumpycitizenbear.top/">暴力熊的进阶笔记 By 暴躁市民小熊</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.grumpycitizenbear.top/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">暴躁市民小熊</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='//cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="//cdnjs.cloudflare.com/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+<style type="text/css">
+div.highlight {
+    position: relative;
+    margin: 1em 0px;
+}
+
+.copy-code {
+    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(78, 78, 78, 0.8);
+    border-radius: var(--radius);
+    padding: 0 5px;
+    font: inherit;
+    user-select: none;
+    cursor: pointer;
+    border: 0;
+    --radius: 8px;
+}
+
+div.highlight:hover .copy-code,pre:hover .copy-code {
+    display: block;
+}
+
+</style>
+<script>
+    document.querySelectorAll('pre > code').forEach((codeblock) => {
+        const container = codeblock.parentNode.parentNode;
+
+        const copybutton = document.createElement('button');
+        copybutton.classList.add('copy-code');
+        copybutton.innerHTML = 'copy';
+
+        function copyingDone() {
+            copybutton.innerHTML = 'copied!';
+            setTimeout(() => {
+                copybutton.innerHTML = 'copy';
+            }, 2000);
+        }
+
+        copybutton.addEventListener('click', (cb) => {
+            if ('clipboard' in navigator) {
+                navigator.clipboard.writeText(codeblock.textContent);
+                copyingDone();
+                return;
+            }
+
+            const range = document.createRange();
+            range.selectNodeContents(codeblock);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            try {
+                document.execCommand('copy');
+                copyingDone();
+            } catch (e) { };
+            selection.removeRange(range);
+        });
+
+        if (container.classList.contains("highlight")) {
+            container.appendChild(copybutton);
+        } else if (container.parentNode.firstChild == container) {
+            
+        } else if (codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.nodeName == "TABLE") {
+            
+            codeblock.parentNode.parentNode.parentNode.parentNode.parentNode.appendChild(copybutton);
+        } else {
+            
+            codeblock.parentNode.appendChild(copybutton);
+        }
+    });
+</script>
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/douban.js'></script>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://grumpycitizenbear.top/search' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://grumpycitizenbear.top/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">Latest articles</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/html%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/" title="HTML常用标签" target="_blank">HTML常用标签</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/" title="basic steps of web crawler" target="_blank">basic steps of web crawler</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/java-multithreading/" title="java-multithreading" target="_blank">java-multithreading</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/" title="Collection体系原理" target="_blank">Collection体系原理</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/maven%E5%8C%85%E7%AE%A1%E7%90%86%E7%9A%84%E4%B8%80%E4%BA%9B%E8%A7%81%E8%A7%A3%E5%92%8C%E6%80%BB%E7%BB%93/" title="Maven包管理的一些见解和总结" target="_blank">Maven包管理的一些见解和总结</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/%E6%9C%89%E5%85%B3getter%E5%92%8Csetter%E7%9A%84%E7%94%A8%E6%B3%95/" title="有关getter和setter的用法" target="_blank">有关getter和setter的用法</a>
+    </li>
+    
+    <li>
+        <a href="http://grumpycitizenbear.top/post/my-first-post/" title="简介" target="_blank">简介</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title" style="color:red">Ads</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a href="https://www.aliyun.com/minisite/goods?userCode=jdg9oj97&amp;share_source=copy_link" title="【2019双12】ALL IN CLoud 低至1折" target="_blank" style="color:red">
+                
+                    <img src="https://img.alicdn.com/tfs/TB1_rYHo7P2gK0jSZPxXXacQpXa-690-388.jpg">
+                
+            </a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>Categories</a></h3>
+<ul class="widget-list">
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>Tags</a></h3>
+<div class="tagcloud">
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">Links</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://yuedu.baidu.com/ebook/14a722970740be1e640e9a3e" title="Android Gradle权威指南">Android Gradle权威指南</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">Meta</h3>
+        <ul class="widget-list">
+            <li><a href="http://grumpycitizenbear.top/index.xml">RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
