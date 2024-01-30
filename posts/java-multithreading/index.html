@@ -1,244 +1,377 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
-    <title>java-multithreading | 暴力熊的进阶笔记</title>
-    <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
-线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
-为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
-现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
-Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
-同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
-异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
-阻塞、非阻塞：针对服务器。
-阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
-非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
-Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
-就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
-运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
-运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
-阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
-等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
-开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
-start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
-每多一个线程就多一个执行流
-⽅法栈(局部变量量)是线程私有的
-静态变量量/类变量量是被所有线程共享的
-线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System.">
-    <meta name="generator" content="Hugo 0.122.0">
-    
-    
-    
-    
-      <meta name="robots" content="noindex, nofollow">
-    
-
-    
-<link rel="stylesheet" href="/ananke/css/main.min.css" >
 
 
 
-    
 
-    
+
+
+
+<!doctype html>
+<html
+  lang="zh-Hans"
+  dir="ltr"
+  class="scroll-smooth"
+  data-default-appearance="light"
+  data-auto-appearance="true"
+><head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="rgb(255,255,255)" />
+  
+  <title>java-multithreading &middot; 暴力熊的进阶笔记</title>
+    <meta name="title" content="java-multithreading &middot; 暴力熊的进阶笔记" />
+  
+  
+  
+  
+  
+  <script
+    type="text/javascript"
+    src="/js/appearance.min.022d0ebc3b46a335eb1c7ef79b7f2de143d7cd5156d433638592ef1ce5f8554e.js"
+    integrity="sha256-Ai0OvDtGozXrHH73m38t4UPXzVFW1DNjhZLvHOX4VU4="
+  ></script>
+  
+  
+  
+  
+  
+  
+  
+  
+  <link
+    type="text/css"
+    rel="stylesheet"
+    href="/css/main.bundle.min.33a669351b9f936b30a0fc74240c4bd296cb15c8b2b1e40ea9ee7b6658af735b.css"
+    integrity="sha256-M6ZpNRufk2swoPx0JAxL0pbLFciyseQOqe57Zlivc1s="
+  />
+  
+  
+  
+  
+  
+  
+  
+  <meta
+    name="description"
+    content="
       
-
-    
-
-    
-
-    
-      <link rel="canonical" href="http://grumpycitizenbear.top/posts/java-multithreading/">
-    
-
-    <meta property="og:title" content="java-multithreading" />
-<meta property="og:description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+        多线程与并发 #线程与进程 #进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
 线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
-为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+为什么需要多线程 # cpu的计算速度很快 可以看一下这篇文章 《我是一个CPU：这个世界慢！死！了！》
 现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
 Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
 同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
 异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
 阻塞、非阻塞：针对服务器。
 阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
-非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
-Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。 原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 # 新建状态 使用new以及Thread类或其子类创建一个线程对象
 就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
 运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
 运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
 阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
 等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
-开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+开启一个新的线程 Thread #线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
 start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
 每多一个线程就多一个执行流
 ⽅法栈(局部变量量)是线程私有的
 静态变量量/类变量量是被所有线程共享的
-线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System." />
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 # Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System.
+      
+    "
+  />
+  
+  
+  
+  <link rel="canonical" href="http://grumpycitizenbear.top/posts/java-multithreading/" />
+  
+  
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+  
+  
+  
+  
+  
+  
+  
+  
+  <meta property="og:title" content="java-multithreading" />
+<meta property="og:description" content="多线程与并发 #线程与进程 #进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 # cpu的计算速度很快 可以看一下这篇文章 《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。 原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 # 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread #线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 # Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="http://grumpycitizenbear.top/posts/java-multithreading/" /><meta property="article:section" content="posts" />
 <meta property="article:published_time" content="2021-11-03T10:23:05+08:00" />
 <meta property="article:modified_time" content="2021-11-03T10:23:05+08:00" />
 
-<meta itemprop="name" content="java-multithreading">
-<meta itemprop="description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="java-multithreading"/>
+<meta name="twitter:description" content="多线程与并发 #线程与进程 #进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
 线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
-为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+为什么需要多线程 # cpu的计算速度很快 可以看一下这篇文章 《我是一个CPU：这个世界慢！死！了！》
 现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
 Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
 同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
 异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
 阻塞、非阻塞：针对服务器。
 阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
-非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
-Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。 原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 # 新建状态 使用new以及Thread类或其子类创建一个线程对象
 就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
 运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
 运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
 阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
 等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
-开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+开启一个新的线程 Thread #线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
 start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
 每多一个线程就多一个执行流
 ⽅法栈(局部变量量)是线程私有的
 静态变量量/类变量量是被所有线程共享的
-线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System."><meta itemprop="datePublished" content="2021-11-03T10:23:05+08:00" />
-<meta itemprop="dateModified" content="2021-11-03T10:23:05+08:00" />
-<meta itemprop="wordCount" content="473">
-<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/><meta name="twitter:title" content="java-multithreading"/>
-<meta name="twitter:description" content="多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
-线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
-为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
-现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
-Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
-同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
-异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
-阻塞、非阻塞：针对服务器。
-阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
-非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
-Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
-就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
-运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
-运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
-阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
-等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
-开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
-start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
-每多一个线程就多一个执行流
-⽅法栈(局部变量量)是线程私有的
-静态变量量/类变量量是被所有线程共享的
-线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System."/>
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 # Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System."/>
 
-	
-  </head>
-
-  <body class="ma0 avenir bg-near-white">
-
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "articleSection": "Posts",
+    "name": "java-multithreading",
+    "headline": "java-multithreading",
     
-   
+    "abstract": "多线程与并发 #线程与进程 #进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。\n线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。\n为什么需要多线程 # cpu的计算速度很快 可以看一下这篇文章 《我是一个CPU：这个世界慢！死！了！》\n现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等\u0026hellip;\u0026hellip;\nJava的执行模式是同步\/阻塞（block）的 同步、异步：针对客户端。\n同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、\n异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。\n阻塞、非阻塞：针对服务器。\n阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。\n非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。 原文链接\nJava默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 # 新建状态 使用new以及Thread类或其子类创建一个线程对象\n就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。\n运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。\n运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态\n阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：\n等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I\/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I\/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。\n开启一个新的线程 Thread #线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它\nstart方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。\n每多一个线程就多一个执行流\n⽅法栈(局部变量量)是线程私有的\n静态变量量\/类变量量是被所有线程共享的\n线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 # Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System.",
+    "inLanguage": "zh-Hans",
+    "url" : "http:\/\/grumpycitizenbear.top\/posts\/java-multithreading\/",
+    "author" : {
+      "@type": "Person",
+      "name": ""
+    },
+    "copyrightYear": "2021",
+    "dateCreated": "2021-11-03T10:23:05\u002b08:00",
+    "datePublished": "2021-11-03T10:23:05\u002b08:00",
+    
+    "dateModified": "2021-11-03T10:23:05\u002b08:00",
+    
+    
+    
+    "mainEntityOfPage": "true",
+    "wordCount": "485"
+  }
+  </script>
+
+
+  
+  
+  
+  
   
 
-  <header>
-    <div class="bg-black">
-      <nav class="pv3 ph3 ph4-ns" role="navigation">
-  <div class="flex-l justify-between items-center center">
-    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
-      
-        暴力熊的进阶笔记
-      
-    </a>
-    <div class="flex-l items-center">
-      
 
-      
-        <ul class="pl0 mr3">
-          
-          <li class="list f5 f4-ns fw4 dib pr3">
-            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top" title="首页 page">
-              首页
-            </a>
-          </li>
-          
-          <li class="list f5 f4-ns fw4 dib pr3">
-            <a class="hover-white no-underline white-90" href="./content/posts" title="博文 page">
-              博文
-            </a>
-          </li>
-          
-          <li class="list f5 f4-ns fw4 dib pr3">
-            <a class="hover-white no-underline white-90" href="https://github.com/GrumpyCitizenBear" title="GitHub page">
-              GitHub
-            </a>
-          </li>
-          
-          <li class="list f5 f4-ns fw4 dib pr3">
-            <a class="hover-white no-underline white-90" href="http://grumpycitizenbear.top/posts/my-first-post/" title="关于 page">
-              关于
-            </a>
-          </li>
-          
-        </ul>
-      
-      
-<div class="ananke-socials">
+
+
+
+
   
-</div>
+  
+  
+  
+  
+
+
+  
+  
+</head>
+<body
+    class="m-auto flex h-screen max-w-7xl flex-col bg-neutral px-6 text-lg leading-7 text-neutral-900 sm:px-14 md:px-24 lg:px-32 dark:bg-neutral-800 dark:text-neutral"
+  >
+    <div id="the-top" class="absolute flex self-center">
+      <a
+        class="-translate-y-8 rounded-b-lg bg-primary-200 px-3 py-1 text-sm focus:translate-y-0 dark:bg-neutral-600"
+        href="#main-content"
+        ><span class="pe-2 font-bold text-primary-600 dark:text-primary-400">&darr;</span
+        >Skip to main content</a
+      >
+    </div>
+    
+    
+      <header class="py-6 font-semibold text-neutral-900 print:hidden sm:py-10 dark:text-neutral">
+  <nav class="flex items-start justify-between sm:items-center">
+    
+    <div class="flex flex-row items-center">
+      
+  <a
+    class="decoration-primary-500 hover:underline hover:decoration-2 hover:underline-offset-2"
+    rel="me"
+    href="/"
+    >暴力熊的进阶笔记</a
+  >
 
     </div>
-  </div>
-</nav>
-
-    </div>
-  </header>
-
-
-
-    <main class="pb7" role="main">
-      
-  
-  <article class="flex-l flex-wrap justify-between mw8 center ph3">
-    <header class="mt4 w-100">
-      <aside class="instapaper_ignoref b helvetica tracked ttu">
+    
+    
+      <ul class="flex list-none flex-col text-end sm:flex-row">
+        
           
-        Posts
-      </aside>
+            
+            <li class="group mb-1 sm:mb-0 sm:me-7 sm:last:me-0.5">
+              
+                <a
+                  href="http://grumpycitizenbear.top"
+                  title=""
+                  
+                  ><span
+                      class="decoration-primary-500 group-hover:underline group-hover:decoration-2 group-hover:underline-offset-2"
+                      >首页</span
+                    >
+                  </a
+                >
+              
+            </li>
+          
+            
+            <li class="group mb-1 sm:mb-0 sm:me-7 sm:last:me-0.5">
+              
+                <a
+                  href="./content/posts"
+                  title=""
+                  
+                  ><span
+                      class="decoration-primary-500 group-hover:underline group-hover:decoration-2 group-hover:underline-offset-2"
+                      >博文</span
+                    >
+                  </a
+                >
+              
+            </li>
+          
+            
+            <li class="group mb-1 sm:mb-0 sm:me-7 sm:last:me-0.5">
+              
+                <a
+                  href="https://github.com/GrumpyCitizenBear"
+                  title=""
+                  
+                  ><span
+                      class="decoration-primary-500 group-hover:underline group-hover:decoration-2 group-hover:underline-offset-2"
+                      >GitHub</span
+                    >
+                  </a
+                >
+              
+            </li>
+          
+            
+            <li class="group mb-1 sm:mb-0 sm:me-7 sm:last:me-0.5">
+              
+                <a
+                  href="http://grumpycitizenbear.top/posts/my-first-post/"
+                  title=""
+                  
+                  ><span
+                      class="decoration-primary-500 group-hover:underline group-hover:decoration-2 group-hover:underline-offset-2"
+                      >关于</span
+                    >
+                  </a
+                >
+              
+            </li>
+          
+          
+        
+      </ul>
+    
+  </nav>
+</header>
+
+    
+    <div class="relative flex grow flex-col">
+      <main id="main-content" class="grow">
+        
+  <article>
+    <header class="max-w-prose">
       
+      <h1 class="mt-0 text-4xl font-extrabold text-neutral-900 dark:text-neutral">
+        java-multithreading
+      </h1>
+      
+        <div class="mb-12 mt-8 text-base text-neutral-500 print:hidden dark:text-neutral-400">
+          
 
 
 
 
 
+  
+  
 
 
 
+  
+
+  
+  
+    
+  
+
+  
+
+  
+
+  
+    
+  
+
+  
 
 
-  <div id="sharing" class="mt3 ananke-socials">
+  <div class="flex flex-row flex-wrap items-center">
+    
+    
+      <time datetime="2021-11-03 10:23:05 &#43;0800 CST">November 3, 2021</time><span class="px-2 text-primary-500">&middot;</span><span title="Reading time">3 mins</span>
+    
+
+    
     
   </div>
 
+  
+  
 
-      <h1 class="f1 athelas mt3 mb1">java-multithreading</h1>
-      
-      
-      
-      <time class="f6 mv4 dib tracked" datetime="2021-11-03T10:23:05+08:00">November 3, 2021</time>
-      
 
+        </div>
       
       
     </header>
-    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><h1 id="多线程与并发">多线程与并发</h1>
-<h2 id="线程与进程">线程与进程</h2>
-<p>进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。</p>
+    <section class="prose mt-0 flex max-w-full flex-col dark:prose-invert lg:flex-row">
+      
+      <div class="min-h-0 min-w-0 max-w-prose grow">
+        <h1 id="多线程与并发" class="relative group">多线程与并发 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%a4%9a%e7%ba%bf%e7%a8%8b%e4%b8%8e%e5%b9%b6%e5%8f%91" aria-label="Anchor">#</a></span></h1><h2 id="线程与进程" class="relative group">线程与进程 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e7%ba%bf%e7%a8%8b%e4%b8%8e%e8%bf%9b%e7%a8%8b" aria-label="Anchor">#</a></span></h2><p>进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。</p>
 <p>线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。</p>
-<h2 id="为什么需要多线程">为什么需要多线程</h2>
-<ol>
+<h2 id="为什么需要多线程" class="relative group">为什么需要多线程 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%9c%80%e8%a6%81%e5%a4%9a%e7%ba%bf%e7%a8%8b" aria-label="Anchor">#</a></span></h2><ol>
 <li>cpu的计算速度很快</li>
 </ol>
-<p>可以看一下这篇文章<a href="https://blog.51cto.com/u_13188467/2065321">《我是一个CPU：这个世界慢！死！了！》</a></p>
+<p>可以看一下这篇文章
+<a href="https://blog.51cto.com/u_13188467/2065321" target="_blank" rel="noreferrer">《我是一个CPU：这个世界慢！死！了！》</a></p>
 <p>现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;</p>
 <ol start="2">
 <li>Java的执行模式是同步/阻塞（block）的</li>
@@ -260,7 +393,8 @@ start方法并发执行 start方法来启动线程，真正实现了bai多线程
 <p>阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。</p>
 </li>
 <li>
-<p>非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。<a href="https://blog.csdn.net/ri_mu_xi_shan/article/details/79195068">原文链接</a></p>
+<p>非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。
+<a href="https://blog.csdn.net/ri_mu_xi_shan/article/details/79195068" target="_blank" rel="noreferrer">原文链接</a></p>
 </li>
 </ul>
 <ol start="3">
@@ -270,8 +404,7 @@ start方法并发执行 start方法来启动线程，真正实现了bai多线程
 <li>处理问题非常自然</li>
 <li>但具有严重的性能问题</li>
 </ul>
-<h2 id="一个线程的生命周期">一个线程的生命周期</h2>
-<ol>
+<h2 id="一个线程的生命周期" class="relative group">一个线程的生命周期 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e4%b8%80%e4%b8%aa%e7%ba%bf%e7%a8%8b%e7%9a%84%e7%94%9f%e5%91%bd%e5%91%a8%e6%9c%9f" aria-label="Anchor">#</a></span></h2><ol>
 <li>新建状态</li>
 </ol>
 <p>使用new以及Thread类或其子类创建一个线程对象</p>
@@ -297,8 +430,7 @@ start方法并发执行 start方法来启动线程，真正实现了bai多线程
 <li>死亡状态</li>
 </ol>
 <p>一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。</p>
-<h2 id="开启一个新的线程-thread">开启一个新的线程 Thread</h2>
-<p>线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它</p>
+<h2 id="开启一个新的线程-thread" class="relative group">开启一个新的线程 Thread <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%bc%80%e5%90%af%e4%b8%80%e4%b8%aa%e6%96%b0%e7%9a%84%e7%ba%bf%e7%a8%8b-thread" aria-label="Anchor">#</a></span></h2><p>线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它</p>
 <ol>
 <li>
 <p>start方法并发执行
@@ -319,8 +451,7 @@ run()称为线程体，它包含了要执行的这个线程的内容，Run方法
 <ul>
 <li>线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。</li>
 </ul>
-<h2 id="创建线程的三种方法">创建线程的三种方法</h2>
-<ol>
+<h2 id="创建线程的三种方法" class="relative group">创建线程的三种方法 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%88%9b%e5%bb%ba%e7%ba%bf%e7%a8%8b%e7%9a%84%e4%b8%89%e7%a7%8d%e6%96%b9%e6%b3%95" aria-label="Anchor">#</a></span></h2><ol>
 <li>Runnable</li>
 </ol>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-java" data-lang="java"><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">RunnableDemo</span> <span style="color:#66d9ef">implements</span> Runnable {
@@ -456,9 +587,9 @@ run()称为线程体，它包含了要执行的这个线程的内容，Run方法
 <li>采用实现 Runnable、Callable 接口的方式创建多线程时，线程类只是实现了 Runnable 接口或 Callable 接口，还可以继承其他类。</li>
 <li>使用继承 Thread 类的方式创建多线程时，编写简单，如果需要访问当前线程，则无需使用 Thread.currentThread() 方法，直接使用 this 即可获得当前线程。</li>
 </ul>
-<p><a href="https://www.runoob.com/java/java-multithreading.html">阅读原文</a></p>
-<h2 id="多线程的应用场景">多线程的应用场景</h2>
-<ol>
+<p>
+<a href="https://www.runoob.com/java/java-multithreading.html" target="_blank" rel="noreferrer">阅读原文</a></p>
+<h2 id="多线程的应用场景" class="relative group">多线程的应用场景 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%ba%94%e7%94%a8%e5%9c%ba%e6%99%af" aria-label="Anchor">#</a></span></h2><ol>
 <li>
 <p>IO密集型
 IO密集型指的是系统的CPU性能相对硬盘、内存要好很多，此时，系统运作，大部分的状况是CPU在等I/O (硬盘/内存) 的读/写操作，此时CPU Loading并不高。</p>
@@ -475,8 +606,7 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 <li>单核CPU 100%</li>
 <li>多核CPU N*100%</li>
 </ul>
-<h2 id="昂贵的线程">昂贵的线程</h2>
-<ol>
+<h2 id="昂贵的线程" class="relative group">昂贵的线程 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e6%98%82%e8%b4%b5%e7%9a%84%e7%ba%bf%e7%a8%8b" aria-label="Anchor">#</a></span></h2><ol>
 <li>线程无法将性能无穷无尽的提升</li>
 <li>线程的昂贵性在于</li>
 </ol>
@@ -496,9 +626,7 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 <ul>
 <li>使用线程池：JUC包</li>
 </ul>
-<h2 id="线程安全">线程安全</h2>
-<h4 id="使用多线程付出的代价">使用多线程付出的代价</h4>
-<ol>
+<h2 id="线程安全" class="relative group">线程安全 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e7%ba%bf%e7%a8%8b%e5%ae%89%e5%85%a8" aria-label="Anchor">#</a></span></h2><h4 id="使用多线程付出的代价" class="relative group">使用多线程付出的代价 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e4%bd%bf%e7%94%a8%e5%a4%9a%e7%ba%bf%e7%a8%8b%e4%bb%98%e5%87%ba%e7%9a%84%e4%bb%a3%e4%bb%b7" aria-label="Anchor">#</a></span></h4><ol>
 <li>原子性</li>
 </ol>
 <p>是指一个操作是不可中断的。即使是多个线程一起执行的时候，一个操作一旦开始，就不会被其他线程干扰。比如，对于一个静态全局变量int i，两个线程同时对它赋值，线程A给他赋值为1，线程B给他赋值为-1。那么不管这两个线程以何种方式。何种步调工作，i的值要么是1，要么是-1.线程A和线程B之间是没有干扰的。这就是原子性的一个特点，不可被中断。</p>
@@ -510,8 +638,7 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 <p>默认的实现几乎都不是线程安全的</p>
 </li>
 </ol>
-<h4 id="线程不安全的表现">线程不安全的表现</h4>
-<ol>
+<h4 id="线程不安全的表现" class="relative group">线程不安全的表现 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e7%ba%bf%e7%a8%8b%e4%b8%8d%e5%ae%89%e5%85%a8%e7%9a%84%e8%a1%a8%e7%8e%b0" aria-label="Anchor">#</a></span></h4><ol>
 <li>
 <p>数据错误</p>
 </li>
@@ -528,10 +655,10 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 </ol>
 <p>使用jps+jstack</p>
 <ol start="4">
-<li><a href="https://baike.baidu.com/item/%E5%93%B2%E5%AD%A6%E5%AE%B6%E5%B0%B1%E9%A4%90%E9%97%AE%E9%A2%98/10929794?fr=aladdin">哲学家用餐</a></li>
+<li>
+<a href="https://baike.baidu.com/item/%e5%93%b2%e5%ad%a6%e5%ae%b6%e5%b0%b1%e9%a4%90%e9%97%ae%e9%a2%98/10929794?fr=aladdin" target="_blank" rel="noreferrer">哲学家用餐</a></li>
 </ol>
-<h4 id="线程安全的基本手段">线程安全的基本手段</h4>
-<ol>
+<h4 id="线程安全的基本手段" class="relative group">线程安全的基本手段 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e7%ba%bf%e7%a8%8b%e5%ae%89%e5%85%a8%e7%9a%84%e5%9f%ba%e6%9c%ac%e6%89%8b%e6%ae%b5" aria-label="Anchor">#</a></span></h4><ol>
 <li>不可变类</li>
 </ol>
 <ul>
@@ -554,48 +681,139 @@ CPU密集型也叫计算密集型，指的是系统的硬盘、内存性能相�
 <li>ConcurrentHashMap:任何使用HashMap有线程安全问题的地方都可以无脑使用</li>
 <li>ReentrantLock</li>
 </ul>
-<h2 id="其他">其他</h2>
-<h4 id="object类里的线程方法">Object类里的线程方法</h4>
-<p>Object.wait()/notify()/notifyAll()方法</p>
-<h4 id="线程池">线程池</h4>
-<p>线程池是预先定义好的若干个线程</p>
-<h4 id="callablefuture">Callable/Future</h4>
-<ul>
+<h2 id="其他" class="relative group">其他 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%85%b6%e4%bb%96" aria-label="Anchor">#</a></span></h2><h4 id="object类里的线程方法" class="relative group">Object类里的线程方法 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#object%e7%b1%bb%e9%87%8c%e7%9a%84%e7%ba%bf%e7%a8%8b%e6%96%b9%e6%b3%95" aria-label="Anchor">#</a></span></h4><p>Object.wait()/notify()/notifyAll()方法</p>
+<h4 id="线程池" class="relative group">线程池 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e7%ba%bf%e7%a8%8b%e6%b1%a0" aria-label="Anchor">#</a></span></h4><p>线程池是预先定义好的若干个线程</p>
+<h4 id="callablefuture" class="relative group">Callable/Future <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#callablefuture" aria-label="Anchor">#</a></span></h4><ul>
 <li>类比Runnable,Callable可以返回值，抛出异常</li>
 <li>Future代表一个“未来才会返回的结果”</li>
 </ul>
-<h4 id="多线程经典问题生产者消费者模型">多线程经典问题：生产者/消费者模型</h4>
-<ul class="pa0">
+<h4 id="多线程经典问题生产者消费者模型" class="relative group">多线程经典问题：生产者/消费者模型 <span class="absolute top-0 w-6 transition-opacity opacity-0 -start-6 not-prose group-hover:opacity-100"><a class="group-hover:text-primary-300 dark:group-hover:text-neutral-700" style="text-decoration-line: none !important;" href="#%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%bb%8f%e5%85%b8%e9%97%ae%e9%a2%98%e7%94%9f%e4%ba%a7%e8%80%85%e6%b6%88%e8%b4%b9%e8%80%85%e6%a8%a1%e5%9e%8b" aria-label="Anchor">#</a></span></h4>
+      </div>
+    </section>
+    <footer class="max-w-prose pt-8 print:hidden">
+      
+  <div class="flex">
+    
+    
+    
+    <div class="place-self-center">
+      
+      
+      <div class="text-2xl sm:text-lg">
+</div>
+    </div>
+  </div>
+
+
+      
+
+      
   
-</ul>
-<div class="mt6 instapaper_ignoref">
-      
-      
+    
+    
+    
+    <div class="pt-8">
+      <hr class="border-dotted border-neutral-300 dark:border-neutral-600" />
+      <div class="flex justify-between pt-3">
+        <span>
+          
+            <a class="group flex" href="/posts/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/">
+              <span
+                class="me-2 text-neutral-700 transition-transform group-hover:-translate-x-[2px] group-hover:text-primary-600 dark:text-neutral dark:group-hover:text-primary-400"
+                ><span class="ltr:inline rtl:hidden">&larr;</span
+                ><span class="ltr:hidden rtl:inline">&rarr;</span></span
+              >
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >Collection体系原理</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2021-10-21 21:29:50 &#43;0800 CST">October 21, 2021</time>
+                  
+                </span>
+              </span>
+            </a>
+          
+        </span>
+        <span>
+          
+            <a class="group flex text-right" href="/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/">
+              <span class="flex flex-col">
+                <span
+                  class="mt-[0.1rem] leading-6 group-hover:underline group-hover:decoration-primary-500"
+                  >basic steps of web crawler</span
+                >
+                <span class="mt-[0.1rem] text-xs text-neutral-500 dark:text-neutral-400">
+                  
+                    <time datetime="2021-11-10 20:18:12 &#43;0800 CST">November 10, 2021</time>
+                  
+                </span>
+              </span>
+              <span
+                class="ms-2 text-neutral-700 transition-transform group-hover:-translate-x-[2px] group-hover:text-primary-600 dark:text-neutral dark:group-hover:text-primary-400"
+                ><span class="ltr:inline rtl:hidden">&rarr;</span
+                ><span class="ltr:hidden rtl:inline">&larr;</span></span
+              >
+            </a>
+          
+        </span>
       </div>
     </div>
-
-    <aside class="w-30-l mt6-l">
-
+  
 
 
-
-</aside>
-
+      
+    </footer>
   </article>
 
-    </main>
-    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
-  <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://grumpycitizenbear.top/" >
-    &copy;  暴力熊的进阶笔记 2024 
-  </a>
-    <div>
-<div class="ananke-socials">
+        
+          <div class="pointer-events-none absolute bottom-0 end-0 top-[100vh] w-12">
+            <a
+              href="#the-top"
+              class="pointer-events-auto sticky top-[calc(100vh-5.5rem)] flex h-12 w-12 items-center justify-center rounded-full bg-neutral/50 text-xl text-neutral-700 backdrop-blur hover:text-primary-600 dark:bg-neutral-800/50 dark:text-neutral dark:hover:text-primary-400"
+              aria-label="Scroll to top"
+              title="Scroll to top"
+            >
+              &uarr;
+            </a>
+          </div>
+        
+      </main><footer class="py-10 print:hidden">
   
-</div>
-</div>
+  
+  <div class="flex items-center justify-between">
+    <div>
+      
+      
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+            &copy;
+            2024
+            
+        </p>
+      
+      
+      
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+          
+          
+          Powered by <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500"
+            href="https://gohugo.io/" target="_blank" rel="noopener noreferrer">Hugo</a> &amp; <a class="hover:underline hover:decoration-primary-400 hover:text-primary-500" href="https://github.com/jpanther/congo" target="_blank" rel="noopener noreferrer">Congo</a>
+        </p>
+      
+    </div>
+    <div class="flex flex-row items-center">
+      
+      
+      
+      
+    </div>
   </div>
+  
+  
 </footer>
 
+    </div>
   </body>
 </html>
