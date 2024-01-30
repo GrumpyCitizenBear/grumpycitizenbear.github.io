@@ -150,30 +150,6 @@
       
       <div class="blah w-100">
         <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/posts/1/" class="color-inherit dim link">
-            1
-            </a>
-        </h1>
-        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          测试 
-        </div>
-          <a href="/posts/1/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
-        
-      </div>
-    </div>
-  </div>
-</article>
-
-          </div>
-        
-          <div class="relative w-100 mb4">
-            
-<article class="bb b--black-10">
-  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
-    <div class="flex flex-column flex-row-ns">
-      
-      <div class="blah w-100">
-        <h1 class="f3 fw1 athelas mt0 lh-title">
           <a href="/posts/html%E5%B8%B8%E7%94%A8%E6%A0%87%E7%AD%BE/" class="color-inherit dim link">
             HTML常用标签
             </a>
@@ -215,18 +191,57 @@
 
           </div>
         
+          <div class="relative w-100 mb4">
+            
+<article class="bb b--black-10">
+  <div class="db pv4 ph3 ph0-l no-underline dark-gray">
+    <div class="flex flex-column flex-row-ns">
+      
+      <div class="blah w-100">
+        <h1 class="f3 fw1 athelas mt0 lh-title">
+          <a href="/posts/java-multithreading/" class="color-inherit dim link">
+            java-multithreading
+            </a>
+        </h1>
+        <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
+          多线程与并发 线程与进程 进程：一个进程包括由操作系统分配的内存空间，包含一个或多个线程。一个进程一直运行，知道所有的非守护线程都结束运行后才结束。
+线程：一条线程指的是进程中一个单一顺序的控制流，一个进程可以并发多个线程，每条线程并行执行不同的任务。一个线程不能独立存在，它必须是进程的一部分。
+为什么需要多线程 cpu的计算速度很快 可以看一下这篇文章《我是一个CPU：这个世界慢！死！了！》
+现在的cpu都是多核的，如果程序只有一个线程，那么cpu永远都在等&hellip;&hellip;
+Java的执行模式是同步/阻塞（block）的 同步、异步：针对客户端。
+同步：客户端请求后等待返回。应用程序执行一个系统调用，在系统调用没有完成，应用程序会一直阻塞。、
+异步：客户端请求发出后，不用等待返回结果，执行下一步动作，当系统调用返回时，通过状态、通知来通知调用者，或通过回调函数处理这个调用。
+阻塞、非阻塞：针对服务器。
+阻塞调用：是指调用结果返回之前，当前线程会被挂起。函数只有在得到结果之后才会返回。
+非阻塞调用：指在不能立刻得到结果之前，该函数不会阻塞当前线程，而会立刻返回。原文链接
+Java默认情况下只有一个线程 处理问题非常自然 但具有严重的性能问题 一个线程的生命周期 新建状态 使用new以及Thread类或其子类创建一个线程对象
+就绪状态 使用start（）方法之后，线程进入就绪状态，等待JVM里的线程调度器的调度。
+运行状态 如果就绪状态的线程获取CPU资源，就可以执run（），此时线程便处于运行状态。
+运行状态下的线程非常复杂，可以变为阻塞状态、就绪状态和死亡状态
+阻塞状态 如果一个线程执行了sleep（睡眠）、suspend（挂起）等方法，失去所占用资源之后，该线程就从运行状态进入阻塞状态。在睡眠时间已到或获得设备资源后可以重新进入就绪状态。可以分为三种：
+等待阻塞：运行状态中的线程执行 wait() 方法，使线程进入到等待阻塞状态。 同步阻塞：线程在获取 synchronized 同步锁失败(因为同步锁被其他线程占用)。 其他阻塞：通过调用线程的 sleep() 或 join() 发出了 I/O 请求时，线程就会进入到阻塞状态。当sleep() 状态超时，join() 等待线程终止或超时，或者 I/O 处理完毕，线程重新转入就绪状态。 死亡状态 一个运行状态的线程完成任务或者其他终止条件发生时，该线程切换到终止状态。
+开启一个新的线程 Thread 线程难的本质原因是你要看着同一份代码，想象不同的人在疯狂地以乱序执行它
+start方法并发执行 start方法来启动线程，真正实现了bai多线程运行，这时无需等待run方法体代码执行完毕而直接继续执行下面的代码。通过调用Thread类的 start()方法来启动一个线程，这时此线程处于就绪（可运行）状态，并没有运行，一旦得到cpu时间片，就开始执行run()方法，这里方法 run()称为线程体，它包含了要执行的这个线程的内容，Run方法运行结束，此线程随即终止。
+每多一个线程就多一个执行流
+⽅法栈(局部变量量)是线程私有的
+静态变量量/类变量量是被所有线程共享的
+线程难的本质原因是：你要看着同⼀份代码，想象不同的人在疯狂地以乱序执行它。 创建线程的三种方法 Runnable class RunnableDemo implements Runnable { private Thread t; private String threadName; RunnableDemo( String name) { threadName = name; System.
+        </div>
+          <a href="/posts/java-multithreading/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
+        
+      </div>
+    </div>
+  </div>
+</article>
+
+          </div>
+        
       </section>
 
       
       <section class="w-100">
         <h1 class="f3">More</h1>
         
-        
-          <h2 class="f5 fw4 mb4 dib mr3">
-            <a href="/posts/java-multithreading/" class="link black dim">
-              java-multithreading
-            </a>
-          </h2>
         
           <h2 class="f5 fw4 mb4 dib mr3">
             <a href="/posts/collection%E4%BD%93%E7%B3%BB%E5%8E%9F%E7%90%86/" class="link black dim">
@@ -243,6 +258,12 @@
           <h2 class="f5 fw4 mb4 dib mr3">
             <a href="/posts/%E6%9C%89%E5%85%B3getter%E5%92%8Csetter%E7%9A%84%E7%94%A8%E6%B3%95/" class="link black dim">
               有关getter和setter的用法
+            </a>
+          </h2>
+        
+          <h2 class="f5 fw4 mb4 dib mr3">
+            <a href="/posts/my-first-post/" class="link black dim">
+              简介
             </a>
           </h2>
         
