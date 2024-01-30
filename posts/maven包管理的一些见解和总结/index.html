@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="zh-Hans" lang="zh-Hans">
+<head>
+  <link href="https://gmpg.org/xfn/11" rel="profile">
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <meta name="generator" content="Hugo 0.122.0">
+
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Maven包管理的一些见解和总结 &middot; 暴力熊的进阶笔记</title>
+  <meta name="description" content="" />
+
+  
+  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/print.css" media="print">
+  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/poole.css">
+  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/syntax.css">
+  <link type="text/css" rel="stylesheet" href="http://grumpycitizenbear.top/css/hyde.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Abril+Fatface|PT+Sans:400,400i,700">
+
+
+  
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+  <link rel="shortcut icon" href="/favicon.png">
+
+  
+  
+</head>
+
+  <body class=" ">
+  <aside class="sidebar">
+  <div class="container sidebar-sticky">
+    <div class="sidebar-about">
+      <a href="http://grumpycitizenbear.top/"><h1>暴力熊的进阶笔记</h1></a>
+      <p class="lead">
+      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
+      </p>
+    </div>
+
+    <nav>
+      <ul class="sidebar-nav">
+        <li><a href="http://grumpycitizenbear.top/">Home</a> </li>
+        <li><a href="http://grumpycitizenbear.top"> 首页 </a></li><li><a href="./content/posts"> 博文 </a></li><li><a href="https://github.com/GrumpyCitizenBear"> GitHub </a></li><li><a href="http://grumpycitizenbear.top/posts/my-first-post/"> 关于 </a></li>
+      </ul>
+    </nav>
+
+    <p>&copy; 2024. All rights reserved. </p>
+  </div>
+</aside>
+
+    <main class="content container">
+    <div class="post">
+  <h1>Maven包管理的一些见解和总结</h1>
+  <time datetime=2021-10-21T10:42:06&#43;0800 class="post-date">Thu, Oct 21, 2021</time>
+  <h1 id="java的包管理与maven">Java的包管理与maven</h1>
+<h2 id="一什么是包">一、什么是包？</h2>
+<h3 id="1如果要知道什么是包那么首先要了解一下jvm的工作模式">1.如果要知道什么是包，那么首先要了解一下JVM的工作模式</h3>
+<p>其实很简单，只需要两步：</p>
+<ul>
+<li>
+<p>执行一个类的字节码</p>
+</li>
+<li>
+<p>假如在这个过程中碰到了新的类，加载它</p>
+<p>1、2步循环执行，直到完成整个程序</p>
+</li>
+</ul>
+<h3 id="2同时我们还要知道在哪里可以找到类">2.同时我们还要知道在哪里可以找到类？</h3>
+<p>classpath类路径</p>
+<p>类的权限定类名（目录层级）唯一确定了一个类</p>
+<h3 id="3包就是把许多类放在一起打的压缩包">3.包就是把许多类放在一起打的压缩包</h3>
+<p>通常以.jar扩展名结尾，也可以手动改为zip</p>
+<h3 id="4传递性依赖">4.传递性依赖</h3>
+<p>通俗的说，就是你的程序依赖的类还依赖了别的类</p>
+<p>产生的问题：</p>
+<ul>
+<li>如果classpath中有重名的类，会优先使用排在前面的类</li>
+<li>这样会导致程序在未来的某一天因为改变了classpath而出现bug</li>
+</ul>
+<p>引申出包管理➡️</p>
+<h2 id="二什么是包管理">二、什么是包管理</h2>
+<p>你要使用一些第三方的类，需要告诉JVM去哪里找</p>
+<p>包管理的本质就是告诉JVM如何找到所需的第三方类库，以及成功解决其中的冲突问题</p>
+<h2 id="三包管理的发展历史">三、包管理的发展历史</h2>
+<h3 id="1apache-ant">1.Apache Ant</h3>
+<ol>
+<li>手动下载jar包，放在一个目录中</li>
+<li>写XML配置，指定编译的源代码目录、依赖的jar包、输出目录等</li>
+<li>缺点
+<ul>
+<li>每个人都要造自己的轮子</li>
+<li>第三方类库需要手动下载（如果依赖了10000个。。。。）</li>
+<li>没有解决包冲突问题</li>
+</ul>
+</li>
+</ol>
+<h3 id="2maven">2.Maven</h3>
+<h2 id="四maven包管理">四、maven包管理</h2>
+<p>maven远不止包管理工具</p>
+<h3 id="1maven的仓库">1.maven的仓库</h3>
+<ul>
+<li>
+<p>maven的中央仓库
+按照一定的约定储存包</p>
+</li>
+<li>
+<p>maven的本地仓库
+默认位置 ～/.m2</p>
+</li>
+</ul>
+<h3 id="2maven的编号">2.maven的编号</h3>
+<ul>
+<li>groupid</li>
+<li>artifactid</li>
+<li>version</li>
+</ul>
+<p>maven的包按照约定为所有的包编号，方便检索</p>
+<h3 id="3maven的传递性依赖自动管理">3.maven的传递性依赖自动管理</h3>
+<h4 id="原则决不允许出现同名不同版本号的jar包">原则：决不允许出现同名不同版本号的jar包</h4>
+<h4 id="解决方案1选择离项目最近的-2如果距离相同选择版本号靠前的">解决方案：1.选择离项目最近的 2.如果距离相同，选择版本号靠前的</h4>
+<h3 id="4会产生包冲突">4.会产生包冲突</h3>
+<pre tabindex="0"><code>举个例子
+我的项目➡️A➡️B➡️C(2.0.0)
+我的项目➡️D➡️C(1.0.0)
+
+我的项目依赖了A，A依赖B，B依赖C的2.0.0版本
+我的项目还依赖了D，D依赖了C的1.0.0版本
+
+按照maven的解决方法，优于C（1.0.0）距离我的项目更近，所以会选择使用1.0.0版本的C
+
+带来的问题：A引用的C（2.0.0）中的方法在C（1.0.0）版本中没有，系统就会报错
+</code></pre><h4 id="依赖冲突的信号">依赖冲突的信号</h4>
+<ol>
+<li>AbstractMethodError</li>
+<li>NoClassDefFoundError</li>
+<li>ClassNotFoundException</li>
+<li>LinkageError</li>
+</ol>
+<h3 id="5解决包冲突">5.解决包冲突</h3>
+<h4 id="查看冲突的方式">查看冲突的方式</h4>
+<ol>
+<li>在IDEA maven 图形化界面中查看</li>
+<li>命令行</li>
+</ol>
+<pre tabindex="0"><code>mvn dependency:tree
+
+可以重定向到文件中，方便查看
+
+使用过滤器：
+mvn dependency -Dincludes=
+</code></pre><ol start="3">
+<li>IDEA中的插件：maven helper</li>
+</ol>
+<h4 id="解决方法">解决方法</h4>
+<ol>
+<li>直接在pom.xml中引用需要的版本</li>
+<li>强行解除依赖</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-xml" data-lang="xml"><span style="display:flex;"><span><span style="color:#f92672">&lt;exclusions&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;exclusion&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&lt;groupId&gt;</span>sample.ProjectC<span style="color:#f92672">&lt;/groupId&gt;</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#f92672">&lt;artifactId&gt;</span>Project-C<span style="color:#f92672">&lt;/artifactId&gt;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&lt;exclusion&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&lt;exclusions&gt;</span>
+</span></span></code></pre></div><h2 id="五maven的其他知识">五、maven的其他知识</h2>
+<h3 id="1scope">1.scope</h3>
+<p>包的作用域，隔离第三方依赖</p>
+<ul>
+<li>compile：在main和test中都可见</li>
+<li>test：只在test中可见</li>
+<li>provided：只在编译时有效，运行时不起作用</li>
+</ul>
+<h3 id="2pomxml">2.pom.xml</h3>
+<p>全称：project object model</p>
+<p>项目的说明书</p>
+
+</div>
+
+
+    </main>
+
+    
+      
+    
+  </body>
+</html>
