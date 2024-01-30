@@ -23,13 +23,6 @@
       <description>HTML常用标签 MDN官网&#xA;一、所有标签都有的属性 标记 class 格式 style 使元素被编辑 contenteditable 让一个东西看不到 hidden id 在html中是唯一的，可以作为链接锚，通过js或者css改变样式 控制tab键的顺序 tabindex 显示完整内容 title 二、章节标签 标题 h1-h6 章节 section 文章 article 段落 p 头部 header 脚步 footer 主要内容 main 旁支内容 aside 划分 div 三、内容标签 ol+li ul+li dl+dt+dd pre 保留空格回车tab code 代码 hr 分割线 br 换行 a 链接 1.href （1）超链接 （2）href的取值 网址 路径 伪协议（javascript：代码；、mailto：邮箱、tel：电话） id 2.target （1）_blank 在空白页面打开 （2）_self 在当前页面打开 （3）_top 在顶部打开页面 （4）_parent 在父页面打开页面 （5）程序猿的命名 固定窗口xxx（windows的name、iframe的name） 3.download 下载 4.</description>
     </item>
     <item>
-      <title>basic steps of web crawler</title>
-      <link>http://grumpycitizenbear.top/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</link>
-      <pubDate>Wed, 10 Nov 2021 20:18:12 +0800</pubDate>
-      <guid>http://grumpycitizenbear.top/posts/%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</guid>
-      <description>网络爬虫的基本步骤 </description>
-    </item>
-    <item>
       <title>java-multithreading</title>
       <link>http://grumpycitizenbear.top/posts/java-multithreading/</link>
       <pubDate>Wed, 03 Nov 2021 10:23:05 +0800</pubDate>
